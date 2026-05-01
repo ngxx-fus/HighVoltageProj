@@ -8,10 +8,7 @@
 #define GPIOC_CRH      *(volatile uint32_t *)0x40011004
 #define GPIOC_ODR      *(volatile uint32_t *)0x4001100C
 
-/// @brief Initialize PC13 GPIO for Blue Pill Onboard LED
-/// @param None
-/// @return None
-void Gpio_Init(void) {
+void GPIO_Init(void) {
     /* Enable GPIOC clock */
     RCC_APB2ENR |= (1 << 4);
 
@@ -20,31 +17,38 @@ void Gpio_Init(void) {
     GPIOC_CRH |= (0x2 << 20);  // Mode: Output, CNF: Push-Pull
 }
 
-/// @brief Test function to verify OLED rendering and I2C communication
-/// @param None
-/// @return None
 void OLEDSayHello(void) {
     SysEntry("OLEDSayHello(...)");
 
     OLED_ShowRAMContent();
-
     OLED_FillScreen(0);
-    
     OLED_DrawEmptyRect(0, 0, 63, 127, 2, 1);
-    
     OLED_DrawText(24, 6, "PWM TOOL", 1, true, 0);
     OLED_DrawText(48, 6, "F: 40K D: 50%", 1, true, 0);
-    
     OLED_Flush();
 
     SysExit("OLEDSayHello: CODE:NULL");
 }
 
+void IsrHandler0(void *){
+    SysLog("IsrHandler0(...): Was called!");
+}
+
+void IsrHandler1(void *){
+    SysLog("IsrHandler1(...): Was called!");
+}
+
+
 void main(void) {
     int32_t RetVal;
 
-    Gpio_Init();
+    GPIO_Init();
+    PWM_Init();
     Log_Init();
+
+    IntHandler[0] = IsrHandler0;
+    IntHandler[1] = IsrHandler1;
+    INT_Init();
 
     SysLog("main(...): Init OLED");
     RetVal = OLED_Init();
@@ -70,10 +74,7 @@ void main(void) {
 
     SysLog("main(...): Toggle to indicate sleeping");
     while (1) {
-        /* Toggle PC13 LED (Active Low) */
-        GPIOC_ODR ^= (1 << 13);                                      
-        
-        /* Delay loop */
-        BusyWaitMs(50);
+        /* No continuous toggle here so ISR-driven toggles are visible */
+        BusyWaitMs(500);
     }
 }

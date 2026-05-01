@@ -1,6 +1,11 @@
 #include "I2C1.h"
 #include <stddef.h>
+#include <stdarg.h>
 #include "../../AppLog/SerialLog.h"
+
+#define SysLog(...)     DelayUS(10)
+#define SysEntry(...)   DelayUS(10)
+#define SysExit(...)    DelayUS(10)
 
 #define GPIOB_ODR       *(volatile uint32_t *)0x40010C0C
 
@@ -23,7 +28,7 @@
 
 /* --- STATIC CONFIGURATIONS & STATE --- */
 static enum I2C1_CONF_ADDR_BIT  g_AddrBitType = I2C1_ADDR_7BIT;
-static enum I2C1_CONF_SPEED     g_SclFreqMode = I2C1_MODE_100KHZ;
+static enum I2C1_CONF_SPEED     g_SclFreqMode = I2C1_MODE_400KHZ;
 static eI2C1_State_t            I2C1_State    = eI2C1_STATE_FREE;
 
 static uint32_t I2C1_GetSafeAddrMode(void) {

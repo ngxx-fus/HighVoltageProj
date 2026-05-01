@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 #include "../../AppUtils/All.h"
+#include "../../AppUtils/Delay.h"
 #include "../../AppLog/SerialLog.h"
 
 /* --- I2C CONFIGURATION ENUMS --- */
