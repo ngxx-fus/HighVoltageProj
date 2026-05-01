@@ -1,5 +1,6 @@
 #include "INT.h"
 #include "SerialLog.h"
+#include "../../AppUtils/Delay.h"
 
 /* --- REGISTERS FOR RCC, GPIOB, AFIO, EXTI, NVIC --- */
 #define RCC_APB2ENR     *(volatile uint32_t *)0x40021018
@@ -19,6 +20,8 @@
 const uint8_t IntPinList[2] = {PB0, PB1};
 const uint8_t IntHandlerCount = sizeof(IntPinList) / sizeof(uint8_t); 
 void (*IntHandler[2])(void* Arg) = {NULL, NULL};
+
+
 
 /// @brief Initialize EXTI for defined pins if their handlers are not NULL
 /// @param void
@@ -139,15 +142,27 @@ void EXTI0_IRQHandler(void) {
     if (EXTI_PR & (1 << 0)) {
         /* Clear pending bit by writing 1 */
         EXTI_PR = (1 << 0);
-        
+
+        /* Mask EXTI line temporarily during debounce */
+        EXTI_IMR &= ~(1 << 0);
+
         SysLog("EXTI0_IRQHandler(...): Triggered");
-        /* Quick visible action: toggle PC13 so user can observe ISR */
-        GPIOC_ODR ^= (1 << 13);
-        
+
         /* Execute callback if valid */
         if (IntHandler[0] != NULL) {
             IntHandler[0](NULL);
         }
+
+        /* Debounce delay: 500 microseconds */
+        BusyWait(500);
+
+        /* Clear pending bit again after debounce */
+        EXTI_PR = (1 << 0);
+
+        /* Re-enable EXTI line */
+        EXTI_IMR |= (1 << 0);
+        /* Re-enable NVIC IRQ (write-1) */
+        NVIC_ISER0 = (1 << 6);
     }
 }
 
@@ -158,15 +173,30 @@ void EXTI1_IRQHandler(void) {
     if (EXTI_PR & (1 << 1)) {
         /* Clear pending bit by writing 1 */
         EXTI_PR = (1 << 1);
-        
+
+        /* Mask EXTI line temporarily during debounce */
+        EXTI_IMR &= ~(1 << 1);
+
         SysLog("EXTI1_IRQHandler(...): Triggered");
         /* Quick visible action: toggle PC13 twice for EXTI1 */
         GPIOC_ODR ^= (1 << 13);
         GPIOC_ODR ^= (1 << 13);
-        
+
         /* Execute callback if valid */
         if (IntHandler[1] != NULL) {
             IntHandler[1](NULL);
         }
+
+        /* Debounce delay: 500 microseconds */
+        BusyWait(500);
+
+        /* Clear pending bit again after debounce */
+        EXTI_PR = (1 << 1);
+
+        /* Re-enable EXTI line */
+        EXTI_IMR |= (1 << 1);
+        /* Re-enable NVIC IRQ (write-1) */
+        NVIC_ISER0 = (1 << 7);
     }
 }
+

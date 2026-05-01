@@ -6,7 +6,7 @@
 /// @param ret The return code
 /// @return String representation
 const char* DefaultReturnType2Str(DefaultRet_t ret) {
-    /* Place the actual comment here */
+
     /* Map error codes to string equivalents */
     switch (ret) {
         case STAT_OKE:                  return STR_STAT_OKE;
@@ -37,7 +37,7 @@ const char* DefaultReturnType2Str(DefaultRet_t ret) {
 /// @param SeedInput Initialization seed or negative to continue sequence
 /// @return 32-bit random integer
 uint32_t GenerateRandomNumber(uint32_t SeedInput) {
-    /* Place the actual comment here */
+
     /* Generate chaotic noise based on previous state and primes */
     static uint32_t last_known_random_state = 104729u;
     static int last_known_seed_input = 0;
@@ -73,8 +73,8 @@ uint32_t GenerateRandomNumber(uint32_t SeedInput) {
 /// @param f Pointer to flag
 /// @param i Bit index
 /// @return None
-void SafeFlagSet(SafeFlag_t *f, uint32_t i) {
-    /* Place the actual comment here */
+void SafeFlagSet(SafeFlag_t *f, uint8_t i) {
+
     /* Fetch and logical OR */
     atomic_fetch_or(f, Mask32(i));
 }
@@ -83,8 +83,8 @@ void SafeFlagSet(SafeFlag_t *f, uint32_t i) {
 /// @param f Pointer to flag
 /// @param i Bit index
 /// @return None
-void SafeFlagClear(SafeFlag_t *f, uint32_t i) {
-    /* Place the actual comment here */
+void SafeFlagClear(SafeFlag_t *f, uint8_t i) {
+
     /* Fetch and logical AND */
     atomic_fetch_and(f, InvMask32(i));
 }
@@ -93,8 +93,8 @@ void SafeFlagClear(SafeFlag_t *f, uint32_t i) {
 /// @param f Pointer to flag
 /// @param i Bit index
 /// @return None
-void SafeFlagToggle(SafeFlag_t *f, uint32_t i) {
-    /* Place the actual comment here */
+void SafeFlagToggle(SafeFlag_t *f, uint8_t i) {
+
     /* Fetch and logical XOR */
     atomic_fetch_xor(f, Mask32(i));
 }
@@ -103,8 +103,8 @@ void SafeFlagToggle(SafeFlag_t *f, uint32_t i) {
 /// @param f Pointer to flag
 /// @param i Bit index
 /// @return 1 if set, 0 otherwise
-ReturnCode_t SafeFlagHas(SafeFlag_t *f, uint32_t i) {
-    /* Place the actual comment here */
+ReturnCode_t SafeFlagHas(SafeFlag_t *f, uint8_t i) {
+
     /* Atomic load and bit mask check */
     uint32_t val = atomic_load(f);
     return (val & Mask32(i)) ? 1 : 0;

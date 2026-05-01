@@ -12,9 +12,11 @@ SRCS = \
 	startup.c \
 	AppUtils/AppUtils.c \
 	AppUtils/Deque.c \
+	AppComm/UI/UI.c \
 	AppComm/INT/INT.c \
 	AppComm/PWM/PWM.c \
 	AppComm/I2C1/I2C1.c \
+	AppComm/BuiltinLED/BuiltinLED.c \
 	AppComm/OLED128x64/OLED128x64.c \
 	AppFonts/fontUtils.c \
 	AppLog/SerialLog.c
@@ -23,9 +25,11 @@ SRCS = \
 INCLUDES = \
 	-I. \
 	-IAppUtils \
+	-IAppComm/UI \
 	-IAppComm/INT \
 	-IAppComm/PWM \
 	-IAppComm/I2C1 \
+	-IAppComm/BuiltinLED \
 	-IAppComm/OLED128x64 \
 	-IAppFonts \
 	-IAppFonts/localFonts \

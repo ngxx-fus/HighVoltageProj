@@ -75,23 +75,23 @@ typedef volatile atomic_uint_fast32_t SafeFlag_t;
 /// @brief  Atomically set a bit (Thread-safe).
 /// @param  f Pointer to the SafeFlag_t variable.
 /// @param  i Bit position (0-31).
-void SafeFlagSet(SafeFlag_t *f, uint32_t i);
+void SafeFlagSet(SafeFlag_t *f, uint8_t i);
 
 /// @brief  Atomically clear a bit (Thread-safe).
 /// @param  f Pointer to the SafeFlag_t variable.
 /// @param  i Bit position (0-31).
-void SafeFlagClear(SafeFlag_t *f, uint32_t i);
+void SafeFlagClear(SafeFlag_t *f, uint8_t i);
 
 /// @brief  Atomically toggle a bit (Thread-safe).
 /// @param  f Pointer to the SafeFlag_t variable.
 /// @param  i Bit position (0-31).
-void SafeFlagToggle(SafeFlag_t *f, uint32_t i);
+void SafeFlagToggle(SafeFlag_t *f, uint8_t i);
 
 /// @brief  Atomically check if a bit is set (Thread-safe).
 /// @param  f Pointer to the SafeFlag_t variable.
 /// @param  i Bit position (0-31).
 /// @return 1 if set, 0 otherwise.
-ReturnCode_t SafeFlagHas(SafeFlag_t *f, uint32_t i);
+ReturnCode_t SafeFlagHas(SafeFlag_t *f, uint8_t i);
 
 #ifdef __cplusplus
 }

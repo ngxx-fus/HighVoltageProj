@@ -13,7 +13,10 @@
 #define TIM2_EGR        *(volatile uint32_t *)0x40000014
 
 /// @brief List of supported PWM frequencies mapping labels to actual values in Hz
-PWMFrequency_t PWMFreqSupportedList[16] = {
+const PWMFrequency_t PWMFreqSupportedList[] = {
+    {"10Hz",      10U},
+    {"100Hz",     100U},
+    {"500Hz",     500U},
     {"1KHz",      1000U},
     {"2.5KHz",    2500U},
     {"5KHz",      5000U},
@@ -32,7 +35,10 @@ PWMFrequency_t PWMFreqSupportedList[16] = {
     {"1MHz",      1000000U}
 };
 
-PWMDutyCycle_t PWMDutySupportedList[9] = {
+const uint8_t PWMFreqSupportedListSize = sizeof(PWMFreqSupportedList)/sizeof(PWMFrequency_t);
+
+/// @brief List of supported PWM duty cycles mapping labels to actual values
+const PWMDutyCycle_t PWMDutySupportedList[] = {
     {"10%",      10U},
     {"20%",      20U},
     {"30%",      30U},
@@ -44,11 +50,12 @@ PWMDutyCycle_t PWMDutySupportedList[9] = {
     {"90%",      90U}
 };
 
-volatile uint32_t PWMFreq = 1000U;
-volatile uint32_t PWMDuti = 50U;
+const uint8_t PWMDutySupportedListSize = sizeof(PWMDutySupportedList)/sizeof(PWMDutyCycle_t);
+
+volatile uint8_t CurrentFreq = 0U;
+volatile uint8_t CurrentDuty = 4U;
 
 /// @brief Initialize TIM2 Channel 1 (PA0) for PWM output
-/// @param void
 /// @return STAT_OKE if success
 ReturnCode_t PWM_Init(void) {
     /* Enable APB clocks for GPIOA and TIM2, configure PA0 as AF Push-Pull */
@@ -67,7 +74,6 @@ ReturnCode_t PWM_Init(void) {
 }
 
 /// @brief Start the PWM output generation
-/// @param void
 /// @return STAT_OKE if success
 ReturnCode_t PWM_OutputStart(void) {
     /* Enable TIM2 Channel 1 output and start counter */
@@ -77,7 +83,6 @@ ReturnCode_t PWM_OutputStart(void) {
 }
 
 /// @brief Stop the PWM output generation
-/// @param void
 /// @return STAT_OKE if success
 ReturnCode_t PWM_OutputStop(void) {
     /* Disable TIM2 Channel 1 output and stop counter */
@@ -86,32 +91,57 @@ ReturnCode_t PWM_OutputStop(void) {
     return STAT_OKE;
 }
 
-/// @brief Configure PWM frequency and duty cycle
+/// @brief Configure PWM frequency and duty cycle, strictly accepting only preset values
 /// @param Freq Selected frequency from supported list
 /// @param Duty Selected duty cycle from supported list
-/// @return STAT_OKE if success
+/// @return STAT_OKE if success, STAT_ERR if invalid preset
 ReturnCode_t PWM_Config(PWMFrequency_t Freq, PWMDutyCycle_t Duty) {
+    uint8_t validFreqIdx = 0xFF;
+    uint8_t validDutyIdx = 0xFF;
+
+    /* Validate Freq against the supported preset list */
+    for (uint8_t i = 0; i < 16; i++) {
+        if (Freq.Value == PWMFreqSupportedList[i].Value) {
+            validFreqIdx = i;
+            break;
+        }
+    }
+
+    /* Validate Duty against the supported preset list */
+    for (uint8_t i = 0; i < 9; i++) {
+        if (Duty.Value == PWMDutySupportedList[i].Value) {
+            validDutyIdx = i;
+            break;
+        }
+    }
+
+    /* Reject the configuration if parameters do not match any preset */
+    if (validFreqIdx == 0xFF || validDutyIdx == 0xFF) {
+        return STAT_ERR;
+    }
+
     /* Stop PWM output immediately per requirement */
     PWM_OutputStop();
 
-    /* Update tracking variables */
-    PWMFreq = Freq.Value;
-    PWMDuti = Duty.Value;
+    /* Update tracking indices with the validated preset locations */
+    CurrentFreq = validFreqIdx;
+    CurrentDuty = validDutyIdx;
 
+    /* Calculate hardware timer parameters */
     uint32_t sys_clk = 72000000U;
     uint32_t psc = 0;
-    uint32_t arr = (sys_clk / PWMFreq) - 1;
+    uint32_t arr = (sys_clk / Freq.Value) - 1;
 
     /* Adjust prescaler if auto-reload value exceeds 16-bit hardware limit */
     if (arr > 65535U) {
         psc = (arr / 65535U) + 1;
-        arr = (sys_clk / (psc + 1) / PWMFreq) - 1;
+        arr = (sys_clk / (psc + 1) / Freq.Value) - 1;
     }
 
     /* Apply configurations to TIM2 registers and force update */
     TIM2_PSC = psc;
     TIM2_ARR = arr;
-    TIM2_CCR1 = ((arr + 1) * PWMDuti) / 100;
+    TIM2_CCR1 = ((arr + 1) * Duty.Value) / 100;
     TIM2_EGR |= (1 << 0);
 
     return STAT_OKE;

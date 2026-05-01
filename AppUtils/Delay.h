@@ -1,28 +1,26 @@
-/// @brief Thư viện macro Delay đơn giản dựa trên vòng lặp for.
-/// @note Chỉ chính xác tương đối, phụ thuộc vào System Clock (đang giả định 8MHz) và mức tối ưu -O0.
+/// @brief Simple for-loop based delay macro library.
+/// @note Relative accuracy, depends on System Clock (assumed 8MHz) and -O0 optimization.
 
-/// @brief Busy wait blocking delay theo đơn vị micro giây (us).
-/// @param us Số micro giây cần chờ.
+/// @brief Busy wait blocking delay in microseconds (us).
+/// @param us Number of microseconds to wait.
 #define BusyWait(us) do { \
-    /* Place the actual comment here */ \
-    /* Với 8MHz và -O0, mỗi vòng lặp volatile tốn khoảng ~1us */ \
+    /* At 8MHz and -O0, each volatile loop takes ~1us */ \
     uint32_t _count = (us); \
     for (volatile uint32_t _i = 0; _i < _count; _i++) { } \
 } while (0)
 
-/// @brief Busy wait blocking delay theo đơn vị mili giây (ms).
-/// @param ms Số mili giây cần chờ.
+/// @brief Busy wait blocking delay in milliseconds (ms).
+/// @param ms Number of milliseconds to wait.
 #define BusyWaitMs(ms) BusyWait((ms) * 1000)
 
-/// @brief Busy wait blocking delay theo đơn vị micro giây (us).
-/// @param us Số micro giây cần chờ.
+/// @brief Busy wait blocking delay in microseconds (us).
+/// @param us Number of microseconds to wait.
 #define DelayUS(us) do { \
-    /* Place the actual comment here */ \
-    /* Với 8MHz và -O0, mỗi vòng lặp volatile tốn khoảng ~1us */ \
+    /* At 8MHz and -O0, each volatile loop takes ~1us */ \
     uint32_t _count = (us); \
     for (volatile uint32_t _i = 0; _i < _count; _i++) { } \
 } while (0)
 
-/// @brief Busy wait blocking delay theo đơn vị mili giây (ms).
-/// @param ms Số mili giây cần chờ.
+/// @brief Busy wait blocking delay in milliseconds (ms).
+/// @param ms Number of milliseconds to wait.
 #define DelayMS(ms) BusyWait((ms) * 1000)
